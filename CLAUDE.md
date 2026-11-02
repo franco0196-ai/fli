@@ -344,6 +344,27 @@ true of `checked_bags` / `carry_on` and `exclude_basic_economy`. See
 Independently of that: raw CO₂ figures are intentionally **not** returned in
 CLI output or MCP tool responses, and that is unchanged.
 
+### Note on point-of-sale pricing (when searching for a user)
+Airlines file different fares per **point of sale** — the market the booking
+is made from — so the same seat can cost very different amounts depending on
+`country` (`gl=`). Observed 2026-11: LATAM LA4566 POA→FLN was R$276 (~£39) with
+`--country BR`, but £92 in LATAM's UK app for the identical flight.
+
+When searching flights on a user's behalf, **always compare point-of-sale
+markets** instead of using only the user's home country:
+
+- Run the same search with `country` set to the market with the weaker
+  economy / lower price level among the plausible options — usually the
+  origin or destination country (e.g. `--country BR` for flights touching
+  Brazil) — as well as the user's home country, and report the cheaper one.
+- Quote prices in that market's currency (`--currency BRL`) and tell the
+  user to book on that country's version of the airline/OTA site, pay in the
+  local currency (decline dynamic currency conversion), and use a card
+  without foreign-transaction fees. Logged-in apps often pin the account's
+  home market, so switch the site's country selector (or use the website).
+- Run these comparison searches sequentially, not in parallel: firing
+  several page fetches at once gets HTTP 429 (`http_error`, `retryable`).
+
 ## Releasing
 
 The Python (`flights` on PyPI) and JavaScript (`fli-js` on npm) packages
